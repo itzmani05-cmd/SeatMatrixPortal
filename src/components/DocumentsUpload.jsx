@@ -8,12 +8,13 @@ import{
 
 const {Title,Text} =Typography;
 
-const DocumentUpload = () => {
+const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
+  console.log("college code",collegeCode);
 
   const beforeUpload=(file)=>{
-    const isFileLT1MB=file.size/1024/1024<1;
+    const isFileLT1MB=file.size/1024/1024<10;
     if(!isFileLT1MB){
-      message.error("File must be smaller than 1MB!");
+      message.error("File must be smaller than 10MB!");
       return Upload.LIST_IGNORE;
     }
     return true;
@@ -78,7 +79,27 @@ const DocumentUpload = () => {
           <Upload
             showUploadList={false}
             beforeUpload={beforeUpload}
-            customRequest={({ file }) => handleUpload(file, record)}
+            customRequest={async({file,onSuccess, onError}) =>{ 
+              try{
+                const formData= new FormData();
+                formData.append("file",file);
+                formData.append("collegeCode", collegeCode);
+                formData.append("documentType", record.name);
+
+                const res= await fetch('http://localhost:5000/api/upload',{
+                  method:"POST",
+                  body:formData,
+                });
+                if(!res.ok)
+                  throw new Error("Upload failed");
+
+                handleUpload(file,record);
+                onSuccess("ok");
+              }catch(err){
+                message.error("Upload failed");
+                onError(err);
+              }
+            }}
           >
             <Button>
               Select File
@@ -154,7 +175,10 @@ const DocumentUpload = () => {
         style={{marginTop:20}}
         bordered
       />
-      <Space style={{marginTop:20, float:"right"}}>
+      <Space style={{width:"100%", display:"flex",justifyContent:"space-between",marginTop:16}}>
+        <Button onClick={onPrev}>
+          &lt; Previous
+        </Button>
         <Button type="primary" disabled={!allFilesUploaded}>
           Submit changes
         </Button>

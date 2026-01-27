@@ -45,17 +45,23 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
         return null;
     }
 
+    const BANK_LABEL={
+        Bank1:"TFC Upward",
+        Bank2:"7.5% Quota",
+    };
+
   return (
     <Card>
         <Title level={3} style={{marginBottom:16, textAlign:"center"}}>Bank Details</Title>
 
         <Form form={form} layout="vertical">
             {Object.entries(bankDetails).map(([bankKey])=>(
-                <Card
+                <div
                     key={bankKey}
-                    title={bankKey}
+                    // title={BANK_LABEL[bankKey]||bankKey}
                     className="mb-6 rounded-lg border border-gray-200 p-4"
                 >
+                    <Title level={4} style={{marginBottom:20, marginTop:10}}>For {BANK_LABEL[bankKey]||bankKey}</Title>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                         <Form.Item label="Bank Name" name={[bankKey, "Name"]} rules={[{required:true}]}>
                             <Input disabled={!editing}/>
@@ -73,7 +79,7 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
                             <Input disabled={!editing}/>
                         </Form.Item>
                     </div>
-                </Card>
+                </div>
             ))}
         </Form>
         <div

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Card,
   Descriptions,
@@ -13,16 +13,25 @@ const {Title, Text}= Typography;
 
 import axios from "axios";
 
-const editInputStyle = {
-  backgroundColor: "#f0f7ff",
-  borderColor: "#91caff",
-};
-
 const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [form]= Form.useForm();
+
+  useEffect(() => {
+    if (data) {
+      form.setFieldsValue({
+        PrincipalName: data.PrincipalName,
+        Email: data.Email,
+        PhoneNumber: data.PhoneNumber,
+        District: data.District,
+        Pincode: data.Pincode,
+        Website: data.Website,
+      });
+    }
+  }, [data, form]);
+
 
   // const [formData, setFormData] = useState({
   //   PrincipalName: data.PrincipalName,

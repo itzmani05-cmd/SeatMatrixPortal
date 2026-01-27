@@ -1,5 +1,8 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {Button, Card, Table, Space, Input, InputNumber, Typography} from 'antd';
+
+import {CourseList, SSCourse} from './courseConstants';
+
 
 const {Title}=Typography;
 
@@ -9,12 +12,17 @@ const CourseDetails = ({courses, onPrev, onNext}) => {
   const [editableCourses, setEditableCourses]= useState(courses);
   const [loading, setLoading]= useState(false);
 
+  useEffect(()=>{
+    setEditableCourses(courses);
+  },[courses]);
+
   const handleEdit=()=>{
     setEditableCourses(courses);
     setEditing(true);
   };
 
   const handleCancel=()=>{
+    setEditableCourses(courses);
     setEditing(false);
   };
 
@@ -143,6 +151,7 @@ const CourseDetails = ({courses, onPrev, onNext}) => {
       <Title level={3} style={{marginBottom:16, textAlign:"center"}}>Course Details</Title>
       
       <Table
+        loading={loading}
         dataSource= {editing? editableCourses :courses}
         columns={columns}
         rowKey="courseCode"
@@ -161,7 +170,7 @@ const CourseDetails = ({courses, onPrev, onNext}) => {
           
        <Space>
         {!editing ? (
-          <Button type="primary" onClick={()=> setEditing(true)}>
+          <Button type="primary" onClick={handleEdit}>
             Edit
          </Button>
         ):(

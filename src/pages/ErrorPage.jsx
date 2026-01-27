@@ -2,6 +2,7 @@ import React from 'react'
 import {Result, Button} from 'antd';
 import {useNavigate} from 'react-router-dom';
 const ErrorPage = () => {
+  const Navigate=useNavigate();
   return (
     <Result 
         status="404"
