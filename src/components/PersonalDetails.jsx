@@ -33,22 +33,6 @@ const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
   }, [data, form]);
 
 
-  // const [formData, setFormData] = useState({
-  //   PrincipalName: data.PrincipalName,
-  //   Email: data.Email,
-  //   PhoneNumber: data.PhoneNumber,
-  //   Website: data.Website,
-  //   District: data.District,
-  //   Pincode: data.Pincode,
-  // });
-
-  // const handleChange = (field, value) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [field]: value,
-  //   }));
-  // };
-
   const handleCancel = () => {
     form.resetFields();
     setEditing(false);
@@ -84,14 +68,6 @@ const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
       <Form
         form={form}
         layout="vertical"
-        initialValues={{
-          PrincipalName: data.PrincipalName,
-          Email: data.Email,
-          PhoneNumber:data.PhoneNumber,
-          District: data.District,
-          Pincode:data.Pincode,
-          Website:data.Website,
-        }}
       >
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 ">
@@ -119,13 +95,23 @@ const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
           >
             <Input disabled={!editing}/>
           </Form.Item>
+
           <Form.Item
             label="Phone Number"
             name="PhoneNumber"
-            rules={[{required: true}]}
+            rules={[
+              {required: true, message:"Phone number is required"}, 
+              {pattern:/^[0-9]{10}$/, message:"Enter valid phone number"}
+            ]}
           >
-            <Input disabled={!editing}/>
+            <Input disabled={!editing}
+              maxLength={10}
+              onChange={(e)=>{
+                e.target.value= e.target.value.replace(/\D/g,"");
+              }}
+            />
           </Form.Item>
+
           <Form.Item
             label="District"
             name="District"
@@ -133,19 +119,25 @@ const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
           >
             <Input disabled={!editing}/>
           </Form.Item>
+
           <Form.Item
             label="Pincode"
             name="Pincode"
-            rules={[{required: true}]}
+            rules={[{required: true, message: "Pincode is required"},
+              {pattern:/^[0-9]{6}$/, message: "Enter a valid 6-digit pincode"}
+            ]}
           >
-            <Input disabled={!editing}/>
+            <Input disabled={!editing} maxLength={6}/>
           </Form.Item>
+
           <Form.Item
             label="Website"
             name="Website"
-            rules={[{required: true}]}
+            rules={[{required: true, message:"Website is required"},
+              {type:"url", message:"Enter a valid website URL"}
+            ]}
           >
-            <Input disabled={!editing}/>
+            <Input disabled={!editing} placeholder="https://example.com"/>
           </Form.Item>
         </div>
       </Form>

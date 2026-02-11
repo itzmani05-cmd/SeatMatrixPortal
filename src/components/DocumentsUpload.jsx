@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import {Card, Typography,Table,Button,Upload,message,Space, Progress, Alert} from 'antd'
 import{
   UploadOutlined,
@@ -10,24 +10,82 @@ const {Title,Text} =Typography;
 
 const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
   console.log("college code",collegeCode);
+  const [documents, setDocuments]=useState([
+    {key:1, name:"Seat Matrix Form", file:null},
+    {key:2, name:"AICTE Approval", file:null},
+    {key:3, name: "Anna University Affiliation", file: null },
+    {key:4, name: "accrediation", file: null},
+    {key:5, name: "Autonomous Certification", file: null },
+  ])
+
+  const [locked, setLocked]= useState(false);
+
+  useEffect(()=>{
+    fetch(`http://localhost:5000/api/upload/upload-status/${collegeCode}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(!data)
+          return;
+        if(data.status==="LOCKED"){
+          setLocked(true);
+        }
+        const map={
+          seatMatrix:"Seat Matrix Form",
+          aicte:"AICTE Approval",
+          anna:"Anna University Affiliation",
+          accrediation:"Accrediation",
+          autonomous:"Autonomous Certification"
+        };
+
+        setDocuments(prev=>
+          prev.map(doc=>{
+            const backendKey=Object.keys(map).find(
+              k=>map[k]===doc.name
+            );
+
+            return data.documents?.[backendKey]?.uploaded
+              ? {...doc, file:{name:"Uploaded"}}
+              : doc;
+          })
+        )
+      })
+  },[collegeCode]);
 
   const beforeUpload=(file)=>{
-    const isFileLT1MB=file.size/1024/1024<10;
-    if(!isFileLT1MB){
+    const isFileLT10MB=file.size/1024/1024<10;
+    if(!isFileLT10MB){
       message.error("File must be smaller than 10MB!");
       return Upload.LIST_IGNORE;
     }
     return true;
   }
 
-  const handleUpload=(file, record)=>{
-    const updated=documents.map((doc)=>
-      doc.key===record.key?{...doc,file}:doc
-    );
-    setDocuments(updated);
-    message.success(`${file.name} selected`);
-    return false;
-  };
+  const handleUpload=async(file, record)=>{
+    try{
+      const formData= new FormData();
+      formData.append("file", file);
+      formData.append("collegeCode", collegeCode);
+      formData.append("documentType", record.name);
+
+      const res= await fetch("http://localhost:5000/api/upload",{
+        method:"POST",
+        body:formData
+      });
+
+      if(!res.ok){
+        throw new Error();
+      }
+      setDocuments(prev=>
+        prev.map(doc=>
+          doc.key===record.key? {...doc, file}:doc
+        )
+      );
+      message.success(`${record.name} uploaded`);
+    }catch(err){
+      message.error("Upload failed");
+    }
+
+  }
 
   const handleDelete=(record) => {
     const updated=documents.map((doc) =>
@@ -37,13 +95,20 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
     message.info("Document removed");
   };
 
-  const [documents, setDocuments]=useState([
-    {key:1, name:"Seat Matrix Form", file:null},
-    {key:2, name:"AICTE Approval", file:null},
-    {key:3, name: "Anna University Affiliation", file: null },
-    {key:4, name: "Accreditation", file: null},
-    {key:5, name: "Autonomous Certification", file: null },
-  ])
+  const handleSubmit=async()=>{
+    const res=await fetch(
+      `http://localhost:5000/api/submit/${collegeCode}`,
+        {method:"POST"}
+    );
+    if(!res.ok){
+      message.error("Please upload all documents");
+      return;
+    }
+    message.success("Documents submitted successfully");
+    setLocked(true);
+    onNext();
+  }
+  
 
   const columns=[
     {
@@ -59,66 +124,39 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
       title:"View the Document",
       render:(_,record)=>
         record?.file?(
-          <Button
-            type="link"
-            icon={<EyeOutlined/>}
-            onClick={() =>
-              window.open(URL.createObjectURL(record?.file), "_blank")
-            }
-          >
-            View
-          </Button>
+          <Text type="success">Uploaded</Text>
         ):(
-          <Text type="secondary">No document. Upload First</Text>
+          <Text type="secondary">Not uploaded</Text>
         )
     },
     {
-      title:"Upload / Update",
-      render:(_,record)=>(
-        record?(
+      title:"Upload / Edit",
+      render:(_,record)=>
+        !locked&&(
           <Upload
             showUploadList={false}
             beforeUpload={beforeUpload}
-            customRequest={async({file,onSuccess, onError}) =>{ 
-              try{
-                const formData= new FormData();
-                formData.append("file",file);
-                formData.append("collegeCode", collegeCode);
-                formData.append("documentType", record.name);
-
-                const res= await fetch('http://localhost:5000/api/upload',{
-                  method:"POST",
-                  body:formData,
-                });
-                if(!res.ok)
-                  throw new Error("Upload failed");
-
-                handleUpload(file,record);
-                onSuccess("ok");
-              }catch(err){
-                message.error("Upload failed");
-                onError(err);
-              }
-            }}
+            customRequest={({file}) =>{ 
+              handleUpload(file, record)}}
           >
-            <Button>
-              Select File
+            <Button icon={<UploadOutlined/>}>
+              {record.file?"Replace":"Upload"}
             </Button>
           </Upload>
-        ):null
+        
       )
     },
     {
       title:'Delete',
       render:(_,record)=>
-        record?.file && (
+        record?.file && !locked &&(
           <Button 
             icon={<DeleteOutlined/>}
             onClick={()=>handleDelete(record)}
           />
         )
     }
-  ]
+  ];
 
   const allFilesUploaded= documents.every(doc=>doc.file);
   const uploadedCount = documents.filter(doc => doc.file).length;
@@ -130,9 +168,11 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
 
   return (
     <Card>
-      <Title level={3} style={{marginBottom:16, textAlign:"center"}}>Documents Upload</Title>
+      <Title level={3} style={{marginBottom:16, textAlign:"center"}}>
+        Documents Upload
+      </Title>
       <Text type="secondary">
-        Click on Select File and upload documents (Max size: 1MB)
+        Click on Select File and upload documents (Max size: 10MB)
       </Text>
 
       <Card bordered style={{marginTop:20}}>
@@ -179,7 +219,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
         <Button onClick={onPrev}>
           &lt; Previous
         </Button>
-        <Button type="primary" disabled={!allFilesUploaded}>
+        <Button type="primary" disabled={!allFilesUploaded||locked} onClick={handleSubmit}>
           Submit changes
         </Button>
       </Space>

@@ -11,6 +11,10 @@ import DeclarationPDFPreview from './pages/DeclarationPDFPreview';
 
 import {MainLayout} from './components/MainLayout';
 
+import {Modal} from 'antd';
+import {InfoCircleOutlined} from '@ant-design/icons';
+
+
 const Protected= ({children})=>{
   const isLoggedIn= !!localStorage.getItem("college");
   return isLoggedIn? children: <Navigate to='/login' replace />;
@@ -18,8 +22,30 @@ const Protected= ({children})=>{
 
 function App(){
   const [ready, setReady]= React.useState(false);
+
   React.useEffect(()=>{
+    
+    Modal.info({
+      title: (
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-semibold text-gray-800">
+            Information
+          </span>
+        </div>
+      ),
+      content: (
+        <div className="mt-4 space-y-4 text-gray-700">
+          <p className="text-sm leading-relaxed">
+            Declaration and document upload will be opened soon. Please complete all other steps within the deadline.
+          </p>
+        </div>
+      ),
+      okText: "Ok",
+      centered: true,
+      maskClosable: false,
+    });
     setReady(true);
+
   },[]);
 
   if(!ready){
