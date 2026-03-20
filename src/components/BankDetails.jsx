@@ -11,13 +11,12 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
         if(bankDetails){
             form.setFieldsValue(bankDetails);
         } 
-    },[bankDetails, form]);
+    },[bankDetails]);
     
     const handleCancel=()=>{
-        form.resetFields();
+        form.setFieldsValue(bankDetails);
         setEditing(false);
     }
-
 
     const handleSave=async()=>{
         try{
@@ -27,7 +26,6 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
                 `http://localhost:5000/api/college/${ccode}/bank`,
                 values
             );
-
             message.success("Bank details updated");
             if(onUpdate)
                 onUpdate(res.data);
@@ -41,8 +39,8 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
         }
     };
 
-    if(!bankDetails){
-        return null;
+    if(!bankDetails||Object.keys(bankDetails).length===0){
+        return <Text>No bank details available</Text>;
     }
 
     const BANK_LABEL={
@@ -50,15 +48,16 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
         Bank2:"7.5% Quota",
     };
 
+    const isChanged= JSON.stringify(form.getFieldsValue())!== JSON.stringify(bankDetails);
+
   return (
     <Card>
         <Title level={3} style={{marginBottom:16, textAlign:"center"}}>Bank Details</Title>
 
         <Form form={form} layout="vertical">
-            {Object.entries(bankDetails).map(([bankKey])=>(
+            {Object.entries(bankDetails).map(([bankKey,bankValue])=>(
                 <div
                     key={bankKey}
-                    // title={BANK_LABEL[bankKey]||bankKey}
                     className="mb-6 rounded-lg border border-gray-200 p-4"
                 >
                     <Title level={4} style={{marginBottom:20, marginTop:10}}>For {BANK_LABEL[bankKey]||bankKey}</Title>
@@ -107,6 +106,7 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
                     type="primary"
                     onClick={handleSave}
                     loading={loading}
+                    disabled={!isChanged}
                   >
                     Save
                   </Button>

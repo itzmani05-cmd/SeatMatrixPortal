@@ -42,15 +42,15 @@ const Home = () => {
     return <Spin fullscreen/>;
   }
 
-
   return (
     <div className="" style={{
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#f5f7fa"
-      }}>
+    }}>
       <Navbar onInstructionClick={()=>setShowInstruction(true)}/>
+        
       <div style={{
         flex:1,
         padding:"24px",
@@ -60,6 +60,7 @@ const Home = () => {
       }}>
         <DashboardTabs collegeData={collegeData}/>
       </div>
+
       <Drawer
         title={null}
         onClose={()=>setShowInstruction(false)}

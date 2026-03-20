@@ -11,9 +11,15 @@ const Navbar = ({onInstructionClick}) => {
     const navigate= useNavigate();
 
     const handleLogout=()=>{
+      try{
         localStorage.removeItem("college");
         navigate('/login', {replace: true});
-    }
+      }
+      catch(err){
+        console.error("Logout error:",err);
+        navigate('/login', {replace: true});
+      }
+    };
 
   return (
     <div style={{height:"62px", padding:"0 24px", backgroundColor:"#fff", display:"flex", alignItems: "center", 

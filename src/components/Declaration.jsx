@@ -54,48 +54,51 @@ const Declaration = ({collegeData, onPrev, onNext}) => {
           </Col>
         </Row>
         <Divider/>
+        <div style={{backgroundColor:"#fafafa", padding:16, borderRadius:8, display:"flex", flexDirection:"column", gap:16}}>
+          <Row>
+            <Col span={24}>
+              <Checkbox 
+                checked={accepted}
+                onChange={(e)=>setAccepted(e.target.checked)}
+              >
+                We declare that we have thoroughly reviewed and verified all seat
+                allocation matrix for TNEA and take full responsibility for the
+                correctness of the submitted data.
+              </Checkbox>
+            </Col>
+          </Row>
 
-        <Row>
-          <Col span={24}>
-            <Checkbox 
-              checked={accepted}
-              onChange={(e)=>setAccepted(e.target.checked)}
-            >
-               We declare that we have thoroughly reviewed and verified all seat
-              allocation matrix for TNEA and take full responsibility for the
-              correctness of the submitted data.
-            </Checkbox>
-          </Col>
-        </Row>
+          <Row>
+            <Col>
+              <Tooltip title="Preview declaration before final submission">
+                  <Button   
+                    icon={<EyeOutlined/>} 
+                    onClick={handlePreview}
+                    disabled={!accepted}
+                  >
+                    View PDF
+                  </Button>
+                </Tooltip>
+            </Col>
+          </Row>
 
-        <Row>
-          <Col>
-            <Tooltip title="Preview declaration before final submission">
-                <Button   
-                  icon={<EyeOutlined/>} 
-                  onClick={handlePreview}
-                  disabled={!accepted}
-                >
-                  View PDF
-                </Button>
-              </Tooltip>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <Tooltip title="Preview declaration before final submission">
-                <Button
-                  icon={<DownloadOutlined/>}
-                  type="primary"
-                  onClick={downloadPDF}
-                
-                >
-                  Download / Save as PDF
-                </Button>
-              </Tooltip>
-          </Col>
-        </Row>
+          <Row>
+            <Col>
+              <Tooltip title="Preview declaration before final submission">
+                  <Button
+                    icon={<DownloadOutlined/>}
+                    type="primary"
+                    onClick={downloadPDF}
+                  
+                  >
+                    Download / Save as PDF
+                  </Button>
+                </Tooltip>
+            </Col>
+          </Row>
+          
+        </div>
+        
 
             
         

@@ -2,7 +2,6 @@ import React,{useState, useEffect} from 'react'
 import {Card, Typography,Table,Button,Upload,message,Space, Progress, Alert} from 'antd'
 import{
   UploadOutlined,
-  EyeOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 
@@ -10,18 +9,18 @@ const {Title,Text} =Typography;
 
 const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
   console.log("college code",collegeCode);
-  const [documents, setDocuments]=useState([
-    {key:1, name:"Seat Matrix Form", file:null},
-    {key:2, name:"AICTE Approval", file:null},
-    {key:3, name: "Anna University Affiliation", file: null },
-    {key:4, name: "accrediation", file: null},
-    {key:5, name: "Autonomous Certification", file: null },
-  ])
+  const [documents,setDocuments]=useState([
+    {key:1,name:"Seat Matrix Form",type:"seatMatrix",file:null},
+    {key:2,name:"AICTE Approval",type:"aicte",file:null},
+    {key:3,name:"Anna University Affiliation",type:"anna",file:null},
+    {key:4,name:"Accreditation",type:"accreditation",file:null},
+    {key:5,name:"Autonomous Certification",type:"autonomous",file:null},
+  ]);
 
   const [locked, setLocked]= useState(false);
 
   useEffect(()=>{
-    fetch(`http://localhost:5000/api/upload/upload-status/${collegeCode}`)
+    fetch(`http://localhost:5000/api/documents/upload-status/${collegeCode}`)
       .then(res=>res.json())
       .then(data=>{
         if(!data)
@@ -33,7 +32,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
           seatMatrix:"Seat Matrix Form",
           aicte:"AICTE Approval",
           anna:"Anna University Affiliation",
-          accrediation:"Accrediation",
+          accreditation:"Accreditation",
           autonomous:"Autonomous Certification"
         };
 
@@ -64,8 +63,9 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
     try{
       const formData= new FormData();
       formData.append("file", file);
-      formData.append("collegeCode", collegeCode);
-      formData.append("documentType", record.name);
+      formData.append("collegeCode", collegeCode);   
+      console.log("Sending collegeCode:", collegeCode);   
+      formData.append("documentType", record.type);
 
       const res= await fetch("http://localhost:5000/api/upload",{
         method:"POST",
@@ -73,7 +73,9 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
       });
 
       if(!res.ok){
-        throw new Error();
+        const err=await res.json();
+        console.log(err);
+        throw new Error(err.message||"Upload failed");
       }
       setDocuments(prev=>
         prev.map(doc=>
@@ -87,17 +89,33 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
 
   }
 
-  const handleDelete=(record) => {
-    const updated=documents.map((doc) =>
-      doc.key=== record.key?{...doc, file:null}: doc
-    );
-    setDocuments(updated);
-    message.info("Document removed");
-  };
+  const handleDelete=async(record) => {
+    try{
+      const res= await fetch(
+        `http://localhost:5000/api/documents/upload/${collegeCode}/${record.type}`,
+        {method:"DELETE"}
+      );
+      if(!res.ok){
+        const err= await res.json();
+        console.log(err);
+        throw new Error(err.message||"Delete failed");
+      }
+      setDocuments(prev=>
+        prev.map(doc=>
+          doc.key===record.key? {...doc, file:null}:doc
+        )
+      );
+      message.success("Document removed");
+    }
+    catch(err){
+      console.log(err);
+      message.error("Delete failed");
+    }
+  }
 
   const handleSubmit=async()=>{
     const res=await fetch(
-      `http://localhost:5000/api/submit/${collegeCode}`,
+      `http://localhost:5000/api/documents/submit/${collegeCode}`,
         {method:"POST"}
     );
     if(!res.ok){
@@ -114,14 +132,19 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
     {
       title:"SNo",
       dataIndex: "key",
-      width:60
+      width:60,
+      align:"center"
     },
     {
       title:"Details",
       dataIndex: "name",
+      width:300,
+      ellipsis:true,
     },
     {
       title:"View the Document",
+      width:150,
+      align:"center",
       render:(_,record)=>
         record?.file?(
           <Text type="success">Uploaded</Text>
@@ -131,6 +154,8 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
     },
     {
       title:"Upload / Edit",
+      width:180,
+      align:"center",
       render:(_,record)=>
         !locked&&(
           <Upload
@@ -148,9 +173,12 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
     },
     {
       title:'Delete',
+      width:100,
+      align:"center",
       render:(_,record)=>
         record?.file && !locked &&(
           <Button 
+            danger
             icon={<DeleteOutlined/>}
             onClick={()=>handleDelete(record)}
           />
@@ -211,6 +239,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
         rowKey="key"
         columns={columns}
         pagination={false}
+        tableLayout='fixed'
         dataSource={documents}
         style={{marginTop:20}}
         bordered

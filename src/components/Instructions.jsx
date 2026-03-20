@@ -22,7 +22,6 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text, Paragraph } = Typography;
-
 const Instructions = ({onClose}) => {
   const navigate = useNavigate();
 

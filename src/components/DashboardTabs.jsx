@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import {Tabs, Badge, Typography,Steps,Card, Alert, message} from 'antd';
 
 import {
@@ -22,8 +22,19 @@ import phaseData from "./phaseData";
 const {Title} = Typography;
 
 const DashboardTabs = ({collegeData}) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const isPhase2Started= new Date()>=phaseData.phase2Start;
     const [activeKey, setActiveKey]= useState("1");
+
+    useEffect(()=>{
+        const handleResize=()=>{
+            setIsMobile(window.innerWidth<768);
+        };
+        window.addEventListener("resize", handleResize);    
+        return()=>{
+            window.removeEventListener("resize", handleResize);
+        };  
+    },[])
 
     const goToTab=(key)=>{
         setActiveKey(key);
@@ -64,35 +75,44 @@ const DashboardTabs = ({collegeData}) => {
 
   return (
     <div
-        style={{padding:"24px", borderRadius: "10px"}}
+        style={{padding:isMobile?"12px":"24px", borderRadius: "10px"}}
     >
-        <Title level={3} style={{ margin: "0 16px 16px 0", color:"#002766" }}>
+        <Title level={3} style={{ fontSize:isMobile?20:24, color:"#002766", marginBottom:16 }}>
            Seat Matrix Form
         </Title>
         <Alert
             showIcon
             description="The Declaration and Document Upload sections will be available soon. Please make sure to complete the form on or before the due date."
             type="info"
-            style={{margin:"0 16px 16px 0", padding:"8px 16px"}}
+            style={{marginBottom:16, padding:isMobile?"8px":"12px 16px"}}
         />
-        <Card>
-            <Steps 
-                size="small"
-                current={Number(activeKey)-1}
-                items={steps.map((step)=>({
-                    title:step.title,
-                    icon:step.icon,
-                    status:getStepSuccess(step.key),
-                    onClick:()=>{
-                        if(
-                            Number(step.key)<=Number(activeKey)&&(Number(step.key)<=3||isPhase2Started)
-                        )
-                        {
-                            goToTab(step.key);
+        <Card
+            bodyStyle={{
+                overflowX:"auto",
+                padding:isMobile?"12px":"16px"
+            }}
+        >
+            <div className="" style={{minWidth: isMobile?600:"auto"}}>
+                <Steps 
+                    size="small"
+                    direction="horizontal"
+                    current={Number(activeKey)-1}
+                    items={steps.map((step)=>({
+                        title:step.title,
+                        icon:step.icon,
+                        status:getStepSuccess(step.key),
+                        onClick:()=>{
+                            if(
+                                Number(step.key)<=Number(activeKey)&&(Number(step.key)<=3||isPhase2Started)
+                            )
+                            {
+                                goToTab(step.key);
+                            }
                         }
-                    }
-                }))}
-            />
+                    }))}
+                />
+            </div>
+            
         </Card>
             
         <Tabs 
@@ -120,7 +140,7 @@ const DashboardTabs = ({collegeData}) => {
                 {
                     key: "3",
                     children: <CourseDetails 
-                        courses={collegeData.CourseDetails} 
+                        data={collegeData} 
                         onPrev={() => goToTab("2")}
                         onNext={() => goToTab("4")}
                     />,
@@ -129,7 +149,7 @@ const DashboardTabs = ({collegeData}) => {
                     key:"4",
                     children: isPhase2Started?(<Verify
                         collegeData={collegeData}
-                        onPrev={() => goToTab("3")}
+                        onPrev={() => goToTab("2")}
                         onNext={() => {
                             if(isPhase2Started){
                                 goToTab("5")
@@ -139,8 +159,7 @@ const DashboardTabs = ({collegeData}) => {
                             }
                         }}
                     />):(
-                        <PhaseLocked/>
-                        
+                        <PhaseLocked/>  
                     ),
                 },
                 {
