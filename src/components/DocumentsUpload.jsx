@@ -1,9 +1,9 @@
 import React,{useState, useEffect} from 'react'
 import {Card, Typography,Table,Button,Upload,message,Space, Progress, Alert} from 'antd'
 import{
-  UploadOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { backendURL } from "../../backendURL";
 
 const {Title,Text} =Typography;
 
@@ -20,7 +20,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
   const [locked, setLocked]= useState(false);
 
   useEffect(()=>{
-    fetch(`http://localhost:5000/api/documents/upload-status/${collegeCode}`)
+    fetch(`${backendURL}/api/documents/upload-status/${collegeCode}`)
       .then(res=>res.json())
       .then(data=>{
         if(!data)
@@ -67,7 +67,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
       console.log("Sending collegeCode:", collegeCode);   
       formData.append("documentType", record.type);
 
-      const res= await fetch("http://localhost:5000/api/upload",{
+      const res= await fetch(`${backendURL}/api/upload`,{
         method:"POST",
         body:formData
       });
@@ -86,13 +86,12 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
     }catch(err){
       message.error("Upload failed");
     }
-
   }
 
   const handleDelete=async(record) => {
     try{
       const res= await fetch(
-        `http://localhost:5000/api/documents/upload/${collegeCode}/${record.type}`,
+        `${backendURL}/api/documents/upload/${collegeCode}/${record.type}`,
         {method:"DELETE"}
       );
       if(!res.ok){
@@ -115,7 +114,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
 
   const handleSubmit=async()=>{
     const res=await fetch(
-      `http://localhost:5000/api/documents/submit/${collegeCode}`,
+      `${backendURL}/api/documents/submit/${collegeCode}`,
         {method:"POST"}
     );
     if(!res.ok){
@@ -168,7 +167,6 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
               {record.file?"Replace":"Upload"}
             </Button>
           </Upload>
-        
       )
     },
     {
@@ -192,7 +190,6 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
   const progressPercent=Math.round(
     (uploadedCount / documents.length)*100
   );
-  
 
   return (
     <Card>

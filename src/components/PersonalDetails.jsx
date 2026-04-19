@@ -12,6 +12,7 @@ import {
 const {Title, Text}= Typography;
 
 import axios from "axios";
+import { backendURL } from "../../backendURL";
 
 const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
   const [editing, setEditing] = useState(false);
@@ -45,7 +46,7 @@ const PersonalDetails = ({ data, onPrev, onNext, onUpdate }) => {
       const values= await form.validateFields();
 
       const res = await axios.put(
-        `http://localhost:5000/api/college/${data.ccode}/personal`,
+        `${backendURL}/api/college/${data.ccode}/personal`,
         values
       );
 

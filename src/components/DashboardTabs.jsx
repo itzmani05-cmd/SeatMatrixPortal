@@ -1,5 +1,5 @@
-import React,{useState, useEffect} from 'react'
-import {Tabs, Badge, Typography,Steps,Card, Alert, message} from 'antd';
+import React,{useState, useEffect,lazy,Suspense} from 'react'
+import {Tabs, Typography,Steps,Card, Alert} from 'antd';
 
 import {
     UserOutlined,
@@ -12,12 +12,12 @@ import {
 
 import PersonalDetails from './PersonalDetails';
 import BankDetails from './BankDetails';
-import CourseDetails from './CourseDetails';
 import Verify from './Verify';
 import Declaration from './Declaration';
-import DocumentsUpload from './DocumentsUpload';
 import phaseData from "./phaseData";
 
+const CourseDetails = lazy(() => import('./CourseDetails'));
+const DocumentsUpload = lazy(() => import('./DocumentsUpload'));
 
 const {Title} = Typography;
 
@@ -47,12 +47,12 @@ const DashboardTabs = ({collegeData}) => {
     };
 
     const steps = [
-        { key: "1", title: "Personal Details", icon: <UserOutlined /> },
-        { key: "2", title: "Bank Details", icon: <BankOutlined /> },
-        { key: "3", title: "Course Details", icon: <BookOutlined /> },
-        { key: "4", title: "Verify", icon: <CheckCircleOutlined /> },
-        { key: "5", title: "Declaration", icon: <FileDoneOutlined /> },
-        { key: "6", title: "Upload Docs", icon: <UploadOutlined /> }
+        {key: "1",title: "Personal Details", icon: <UserOutlined /> },
+        {key: "2",title: "Bank Details", icon: <BankOutlined /> },
+        {key: "3",title: "Course Details", icon: <BookOutlined /> },
+        {key: "4", title: "Verify", icon: <CheckCircleOutlined /> },
+        {key: "5", title: "Declaration", icon: <FileDoneOutlined /> },
+        {key: "6", title: "Upload Docs", icon: <UploadOutlined /> }
     ];
 
     const getStepSuccess=(key)=>{
@@ -71,7 +71,6 @@ const DashboardTabs = ({collegeData}) => {
             description="Verify, Declaration and Document Upload will be enabled once Phase 2 begins."
         />
     );
-
 
   return (
     <div
@@ -118,79 +117,137 @@ const DashboardTabs = ({collegeData}) => {
         <Tabs 
             activeKey={activeKey}
             renderTabBar={() => null}
-            style={{marginTop: "16px", marginBottom: "32px"}}
-            items={[
-                {
-                    key:"1",
-                    children:<PersonalDetails 
-                        data={collegeData} 
-                        onPrev={null} 
-                        onNext={()=> goToTab("2")}
-                    />,
-                },
-                {
-                    key: "2",
-                    children: <BankDetails 
-                        bankDetails={collegeData.BankDetails} 
-                        ccode={collegeData.ccode}
-                        onPrev={()=> goToTab("1")}
-                        onNext={()=> goToTab("3")}
-                    />,
-                },
-                {
-                    key: "3",
-                    children: <CourseDetails 
-                        data={collegeData} 
+            
+            // items={[
+            //     {
+            //         key:"1",
+            //         children:<PersonalDetails 
+            //             data={collegeData} 
+            //             onPrev={null} 
+            //             onNext={()=> goToTab("2")}
+            //         />,
+            //     },
+            //     {
+            //         key: "2",
+            //         children: <BankDetails 
+            //             bankDetails={collegeData.BankDetails} 
+            //             ccode={collegeData.ccode}
+            //             onPrev={()=> goToTab("1")}
+            //             onNext={()=> goToTab("3")}
+            //         />,
+            //     },
+            //     {
+            //         key: "3",
+            //         children: <CourseDetails 
+            //             data={collegeData} 
+            //             onPrev={() => goToTab("2")}
+            //             onNext={() => goToTab("4")}
+            //         />,
+            //     },
+            //     {
+            //         key:"4",
+            //         children: isPhase2Started?(<Verify
+            //             collegeData={collegeData}
+            //             onPrev={() => goToTab("2")}
+            //             onNext={() => {
+            //                 if(isPhase2Started){
+            //                     goToTab("5")
+            //                 }
+            //                 else{
+            //                     message.warning("Verify will be available from Phase 2")
+            //                 }
+            //             }}
+            //         />):(
+            //             <PhaseLocked/>  
+            //         ),
+            //     },
+            //     {
+            //         key:"5",
+            //         children: isPhase2Started?(<Declaration
+            //             collegeData={collegeData}
+            //             onPrev={() => goToTab("4")}
+            //             onNext={() => {
+            //                 if(isPhase2Started){
+            //                     goToTab("6")
+            //                 }
+            //                 else{
+            //                     message.warning("Declaration will be available from Phase 2")
+            //                 }
+            //             }}
+            //         />):(
+            //             <PhaseLocked/>
+            //         ),
+            //     },
+            //     {
+            //         key:"6",
+            //         children: isPhase2Started?(<DocumentsUpload
+            //             onPrev={() => goToTab("5")}
+            //             onNext={null}
+            //             collegeCode={collegeData.ccode}
+            //         />):(
+            //             <PhaseLocked/>
+            //         )
+            //     },
+            // ]}
+        />
+        <div style={{marginTop: "16px", marginBottom: "32px"}}>
+            {activeKey === "1" && (
+                <PersonalDetails
+                    data={collegeData}
+                    onNext={() => goToTab("2")}
+                />
+            )}
+
+            {activeKey === "2" && (
+                <BankDetails
+                    bankDetails={collegeData.BankDetails}
+                    ccode={collegeData.ccode}
+                    onPrev={() => goToTab("1")}
+                    onNext={() => goToTab("3")}
+                />
+            )}
+
+            {activeKey === "3" && (
+                <Suspense fallback={<div>Loading Course...</div>}>
+                    <CourseDetails
+                        data={collegeData}
                         onPrev={() => goToTab("2")}
                         onNext={() => goToTab("4")}
-                    />,
-                },
-                {
-                    key:"4",
-                    children: isPhase2Started?(<Verify
+                    />
+                </Suspense>
+            )}
+
+            {activeKey === "4" && (
+                isPhase2Started ? (
+                    <Verify
                         collegeData={collegeData}
-                        onPrev={() => goToTab("2")}
-                        onNext={() => {
-                            if(isPhase2Started){
-                                goToTab("5")
-                            }
-                            else{
-                                message.warning("Verify will be available from Phase 2")
-                            }
-                        }}
-                    />):(
-                        <PhaseLocked/>  
-                    ),
-                },
-                {
-                    key:"5",
-                    children: isPhase2Started?(<Declaration
+                        onPrev={() => goToTab("3")}
+                        onNext={() => goToTab("5")}
+                    />
+                ) : <PhaseLocked />
+            )}
+
+            {activeKey === "5" && (
+                isPhase2Started ? (
+                    <Declaration
                         collegeData={collegeData}
                         onPrev={() => goToTab("4")}
-                        onNext={() => {
-                            if(isPhase2Started){
-                                goToTab("6")
-                            }
-                            else{
-                                message.warning("Declaration will be available from Phase 2")
-                            }
-                        }}
-                    />):(
-                        <PhaseLocked/>
-                    ),
-                },
-                {
-                    key:"6",
-                    children: isPhase2Started?(<DocumentsUpload
-                        onPrev={() => goToTab("5")}
-                        onNext={null}
-                        collegeCode={collegeData.ccode}
-                    />):(
-                        <PhaseLocked/>
-                    )
-                },
-            ]}
-        />
+                        onNext={() => goToTab("6")}
+                    />
+                ) : <PhaseLocked />
+            )}
+
+            {activeKey === "6" && (
+                isPhase2Started ? (
+                    <Suspense fallback={<div>Loading Document Upload...</div>}>
+                        <DocumentsUpload
+                            collegeCode={collegeData.ccode}
+                            onPrev={() => goToTab("5")}
+                        />
+                    </Suspense>
+                ) : <PhaseLocked />
+            )}
+        </div>
     </div>
   );
 };

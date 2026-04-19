@@ -3,49 +3,33 @@ import axios from 'axios'
 import TneaLogo from '../assets/Tnea_logo.png'
 
 import {useNavigate} from "react-router-dom";
-
+import { useAuth } from "../context/AuthContext";
 import {Card, Form, Input, Button, Alert, Typography} from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { backendURL } from "../../backendURL";
 const {Title, Text}= Typography;
 
 const Login = () => {
+    const { login,auth } = useAuth();
     const [loading, setLoading]= useState(false);
     const [error, setError]= useState("");
     const [success, setSuccess]= useState("");
 
     const navigate= useNavigate();
 
-    // useEffect(()=>{
-    //     axios.get("http://localhost:5000/get/allColleges")
-    //     .then((res)=>{
-    //         console.log("Login page:");
-    //         setData(res.data);
-    //         setLoading(false);
-    //     })
-    //     .catch((err)=>{
-    //         setError("Failed to fetch college data");
-    //         setLoading(false);
-    //     });
-    // },[]);
-
     const onFinish= async(values)=>{
         setLoading(true);
         setError("");
         setSuccess("");
-        console.log('login');
         try{
             const res= await axios.post(
-                "http://localhost:5000/api/auth/login",
-                values
+                `${backendURL}/api/auth/login`,
+                {
+                    ccode: values.ccode?.trim(),
+                    password: values.password?.trim()
+                }
             );
-            console.log('login2');
-            setSuccess(res.data.message);
-            localStorage.setItem(
-                "college",
-                res.data.college.ccode
-            );
-            navigate('/home', {replace: true});
-            console.log("Logged in college:", res.data.college);
+            login(res.data);
         }
         catch(err){
             setError("Invalid college code or password"); 
@@ -67,10 +51,10 @@ const Login = () => {
       <Card style={{width:"480px", borderRadius:"14px", boxShadow:"0 4px 12px rgba(0,0,0,0.1)", padding:"20px", marginTop:"20px"} }>
         
         {error && 
-            <Alert message={error} type="error" showIcon style={{marginBottom:16}}
+            <Alert title={error} type="error" showIcon style={{marginBottom:16}}
         />}
         {success && 
-            <Alert message={success} type="success" showIcon style={{marginBottom:16}} 
+            <Alert title={success} type="success" showIcon style={{marginBottom:16}} 
         />}
 
         <Form onFinish={onFinish} layout="vertical">

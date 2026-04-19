@@ -3,22 +3,17 @@ import { useNavigate,Link } from 'react-router-dom';
 import {Button, } from 'antd';
 import tneaLogo from '../assets/Tnea_logo.png';
 
+import { useAuth } from "../context/AuthContext";
+
 import {
     LogoutOutlined
 } from '@ant-design/icons';
 
 const Navbar = ({onInstructionClick}) => {
     const navigate= useNavigate();
-
-    const handleLogout=()=>{
-      try{
-        localStorage.removeItem("college");
-        navigate('/login', {replace: true});
-      }
-      catch(err){
-        console.error("Logout error:",err);
-        navigate('/login', {replace: true});
-      }
+    const {logout}=useAuth();
+    const handleLogout = () => {
+      logout(); 
     };
 
   return (

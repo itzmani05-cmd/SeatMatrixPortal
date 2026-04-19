@@ -2,7 +2,8 @@ import React, {useState,useMemo ,useEffect} from 'react'
 import {Form,Button, Card, Table,Grid, Space, InputNumber, Typography, Select, Empty, Spin} from 'antd';
 import {DeleteOutlined} from '@ant-design/icons';
 import {toast} from 'react-toastify';
-import {CourseList, SSCourse} from './courseConstants';
+import {CourseList, SSCourse} from './CourseConstants';
+import { backendURL } from '../../backendURL';
 
 const {Title}=Typography;
 const {useBreakpoint}= Grid;
@@ -104,7 +105,7 @@ const CourseDetails = ({data, onPrev, onNext}) => {
           Pending:Number(result.Pending.toFixed(2)),
         };
       });
-      const res= await fetch(`http://localhost:5000/api/college/${data.ccode}/courses`, {
+      const res= await fetch(`${backendURL}/api/college/${data.ccode}/courses`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"

@@ -1,6 +1,7 @@
 import React,{useState, useEffect} from 'react'
 import {Card,Form, Descriptions, Button, Space,Input, message, Typography} from "antd";
 import axios from 'axios';
+import { backendURL } from "../../backendURL";
 const {Title, Text}=Typography;
 
 const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
@@ -23,7 +24,7 @@ const BankDetails = ({bankDetails,ccode ,onPrev, onNext,onUpdate}) => {
             setLoading(true);
             const values= await form.validateFields();
             const res=await axios.put(
-                `http://localhost:5000/api/college/${ccode}/bank`,
+                `${backendURL}/api/college/${ccode}/bank`,
                 values
             );
             message.success("Bank details updated");

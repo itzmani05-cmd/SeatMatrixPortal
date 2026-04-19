@@ -70,7 +70,6 @@ const DeclarationPDFPreview = () => {
           </div>
         </div>
 
-        {/* COLLEGE DETAILS */}
         <div className="border-2 border-[#5f8f6a] mb-6 ">
           <div className="grid grid-cols-[180px_1fr] border-b-2 border-[#5f8f6a]">
             <div className="bg-[#e6f6ec] px-3 py-2 font-semibold">
@@ -87,7 +86,6 @@ const DeclarationPDFPreview = () => {
           </div>
         </div>
 
-        {/* COURSE TABLE */}
         <div className="text-center font-semibold mb-4 mt-10">
           Course Details
         </div>
@@ -100,7 +98,6 @@ const DeclarationPDFPreview = () => {
           size="small"
         />
 
-        {/* DECLARATION TEXT */}
         <div className="mt-8 text-sm leading-relaxed text-justify">
           <Text>
             We declare that we have thoroughly reviewed and verified all seat
@@ -114,13 +111,11 @@ const DeclarationPDFPreview = () => {
           </Text>
         </div>
 
-        {/* SIGNATURES */}
         <div className="flex justify-between mt-20 text-sm">
           <div>Chairman’s Signature</div>
           <div>Principal’s Signature</div>
         </div>
 
-        {/* FOOTER */}
         <div className="absolute bottom-4 left-0 right-0 text-xs text-gray-500 flex justify-between px-8">
           <span>
             Printed on: {new Date().toLocaleString("en-IN")}

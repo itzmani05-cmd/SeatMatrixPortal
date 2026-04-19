@@ -1,73 +1,74 @@
-import React from 'react'
+import React,{lazy,Suspense} from 'react'
 import "./App.css";
-import {useState, useEffect} from 'react';
-import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Navigate, useNavigate} from 'react-router-dom';
 
+import { useAuth } from "./context/AuthContext";
 import Login from './pages/Login';
-import Home from './pages/Home';
+import ChangePassword from './pages/ChangePassword';
 import ErrorPage from './pages/ErrorPage';
-import Instructions from './components/Instructions';
-import DeclarationPDFPreview from './pages/DeclarationPDFPreview';
 
 import {MainLayout} from './components/MainLayout';
 
-import {Modal} from 'antd';
-import {InfoCircleOutlined} from '@ant-design/icons';
+const Home= lazy(()=> import('./pages/Home'));
+const Instructions= lazy(()=>import('./components/Instructions'));
+const DeclarationPDFPreview= lazy(()=>import('./pages/DeclarationPDFPreview'));
 
+const Protected = ({ children }) => {
+  const {auth} = useAuth();
+  if (!auth.isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+  if (!auth.isPasswordChanged){
+    return <Navigate to="/change-password" replace />;
+  }
+  return children;
+};
 
-const Protected= ({children})=>{
-  const isLoggedIn= !!localStorage.getItem("college");
-  return isLoggedIn? children: <Navigate to='/login' replace />;
+const InstructionPage = () => {
+  const navigate = useNavigate();
+  return <Instructions onClose={() => navigate('/home')} />;
 };
 
 function App(){
-  const [ready, setReady]= React.useState(false);
-
-  React.useEffect(()=>{
-    
-    Modal.info({
-      title: (
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-semibold text-gray-800">
-            Information
-          </span>
-        </div>
-      ),
-      content: (
-        <div className="mt-4 space-y-4 text-gray-700">
-          <p className="text-sm leading-relaxed">
-            Declaration and document upload will be opened soon. Please complete all other steps within the deadline.
-          </p>
-        </div>
-      ),
-      okText: "Ok",
-      centered: true,
-      maskClosable: false,
-    });
-    setReady(true);
-
-  },[]);
-
-  if(!ready){
-    return null;
-  }
-
+  const {auth}=useAuth();
   return (
     <BrowserRouter>
-      <div>
+      <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path='/' element={
               <Navigate to="/login" replace/>
             } 
           />
 
-          <Route path='/login' element={
-              localStorage.getItem("college")? 
-                <Navigate to="/home" replace/>:
-                <Login/>
+          <Route
+            path="/login"
+            element={
+              auth.isLoggedIn?(
+                auth.isPasswordChanged?(
+                  <Navigate to="/home" replace />
+                ) : (
+                  <Navigate to="/change-password" replace />
+                )
+              ) : (
+                <Login />
+              )
             }
           />
-
+          <Route
+            path="/change-password"
+            element={
+              auth.isLoggedIn ? (
+                auth.isPasswordChanged ? (
+                  <Navigate to="/home" replace />
+                ) : (
+                  <ChangePassword />
+                )
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+        
           <Route path='/home' element={
             <Protected>
               <MainLayout>
@@ -86,12 +87,17 @@ function App(){
             } 
           />
 
-          <Route path='/instruction' element={<Instructions/>}/>
+          <Route path='/instruction' element={
+            <Protected>
+              <MainLayout>
+                <InstructionPage />
+              </MainLayout>
+            </Protected>
+          } />
           <Route path='*' element={<ErrorPage/>} />
           
         </Routes>
-        
-      </div>
+      </Suspense>
     </BrowserRouter>
   );
 }
