@@ -163,7 +163,7 @@ const DocumentUpload = ({onPrev,onNext,collegeCode}) => {
             customRequest={({file}) =>{ 
               handleUpload(file, record)}}
           >
-            <Button icon={<UploadOutlined/>}>
+            <Button>
               {record.file?"Replace":"Upload"}
             </Button>
           </Upload>
