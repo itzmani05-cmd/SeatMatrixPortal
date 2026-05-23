@@ -1,16 +1,203 @@
-# React + Vite
+# SMPortal 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**SMPortal** is a full-stack **college application and document submission portal** designed to streamline student admissions and application management.
 
-Currently, two official plugins are available:
+The platform supports **student authentication, phased application submission, document uploads with AWS S3 integration, admin verification workflows, and declaration PDF previews**, providing a seamless experience for both applicants and administrators.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+### 👨‍🎓 College Features
+- Secure user authentication
+- Multi-phase application workflow
+- Profile and application management
+- Document upload and management
+- Declaration PDF preview & download
+- Real-time application tracking
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 👨‍💼 Admin Features
+- Student application verification
+- Document review and approval
+- Application management dashboard
+- Status monitoring and validation
 
-## Expanding the ESLint configuration
+### ☁️ File Management
+- AWS S3 document storage
+- Secure file upload handling
+- Document retrieval and preview
+- Multer-based upload middleware
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React
+- Vite
+- Tailwind CSS
+
+### Backend
+- Node.js
+- Express.js
+
+### Database
+- MongoDB
+- Mongoose
+
+### File Storage
+- AWS S3
+- Multer
+
+### Additional Tools
+- JWT Authentication
+- Winston Logger
+
+---
+
+## 📂 Project Structure
+
+```bash
+SMPortal/
+│
+├── client/                  # React frontend (Vite)
+│
+├── server/                  # Express backend
+│   ├── config/              # Database & storage configs
+│   ├── controller/          # Business logic
+│   ├── middleware/          # Auth & upload middleware
+│   ├── models/              # Mongoose models
+│   ├── routes/              # API routes
+│   ├── utils/               # Helpers & logger
+│   └── uploads/             # Temporary uploads (if applicable)
+│
+├── package.json
+└── README.md
+```
+
+---
+
+## ⚙️ Prerequisites
+
+Before running the project, ensure you have installed:
+
+- Node.js **v18+** (Recommended: Latest LTS)
+- MongoDB (Local or Atlas)
+- npm or yarn
+- AWS S3 Bucket Configuration
+
+---
+
+## 🔧 Installation & Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/smportal.git
+```
+
+### 2. Navigate to the Project
+
+```bash
+cd smportal
+```
+
+---
+
+## 📦 Install Dependencies
+
+### Frontend
+
+```bash
+cd client
+npm install
+```
+
+### Backend
+
+```bash
+cd ../server
+npm install
+```
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file inside the **server** folder:
+
+```env
+PORT=5000
+
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_secret_key
+
+AWS_ACCESS_KEY_ID=your_access_key
+
+AWS_SECRET_ACCESS_KEY=your_secret_key
+
+AWS_REGION=your_region
+
+AWS_BUCKET_NAME=your_bucket_name
+```
+
+## 🔒 Authentication
+
+SMPortal includes:
+
+- User Registration
+- Login Authentication
+- JWT-based Authorization
+- Secure Protected Routes
+
+---
+
+## 📄 Application Workflow
+
+1. User Registration/Login  
+2. Multi-phase Application Submission  
+3. Document Upload (AWS S3)  
+4. Admin Verification  
+5. Declaration PDF Preview  
+6. Final Submission
+
+---
+
+## 📡 API Highlights
+
+### Authentication
+```http
+POST /api/auth/register
+POST /api/auth/login
+```
+
+### Applications
+```http
+GET /api/application
+POST /api/application
+PUT /api/application/:id
+```
+
+### Document Upload
+```http
+POST /api/upload
+```
+
+### Admin
+```http
+GET /api/admin/applications
+PUT /api/admin/verify/:id
+```
+
+---
+
+## ☁️ AWS S3 Integration
+
+Documents are securely uploaded and stored using **AWS S3**.
+
+Supported capabilities:
+- File Upload
+- Document Preview
+- Secure Cloud Storage
+- Document Retrieval
+
+---
